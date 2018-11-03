@@ -1,0 +1,148 @@
+=======
+ Setup
+=======
+
+prometheus-role.yml
+common.yml
+grafana-role.yml
+elasticsearch-role.yml
+kibana-role.yml
+
+
+
+
+=========
+ grafana
+=========
+
+http://fnsn0:3000/login
+  admin > Profile > Change Password
+  Add data source
+    Config
+      Name: prometheus
+      Type: Prometheus
+      Url: http://localhost:9090
+      Access: proxy
+    Dashboards
+      Prometheus Stats  >  Import
+      Grafana metrics   >  Import
+    
+      Import from grafana role
+    
+===============
+ elasticsearch
+=============== 
+
+nano /etc/sysctl.conf
+  vm.max_map_count=262144
+
+zfs create vol0/es_data
+
+run elasticsearch-role playbook
+
+chown elasticsearch:elasticsearch /vol0/es_data/
+service elasticsearch restart
+
+curl http://dml-c0:9200
+
+http://dml-c0:9200/_cat/indices?v
+
+curl -XDELETE 'http://dml-c0:9200/ttm-*?pretty'
+
+curl -XGET 'http://dml-c0:9200/_template?pretty'
+
+curl -XDELETE 'http://dml-c0:9200/_template/ttm?pretty'
+
+
+run kibana-role playbook
+
+curl -XPUT 'http://dml-c0:9200/.kibana/_settings?pretty' -H 'Content-Type: application/json' -d'
+{
+  "index" : {
+    "number_of_replicas" : 0
+  }
+}'
+
+
+curl -XPUT 'http://dml-c0:9200/login-*/_settings?pretty' -H 'Content-Type: application/json' -d'
+{
+  "index" : {
+    "number_of_replicas" : 0
+  }
+}'
+  
+========
+ kibana
+========
+
+http://fnsn0:5601
+
+
+
+Index Patterns
+
+dw-*
+dw-production-*
+dw-staging-*
+dw-staging-dev-*
+dw-staging-lab-*
+dw-staging-qa-*
+dw-staging-review-*
+dw-2013-2014-*
+dw-2014-2015-*
+dw-2015-2016-*
+
+fms-*
+
+lt-*
+lt-production-*
+lt-dev-*
+lt-lab-*
+lt-qa-*
+lt-rc-*
+lt-review-*
+
+ttm-*
+ttm-production-*
+ttm-rc-*
+ttm-lab-*
+ttm-dev-*
+ttm-qa-*
+ttm-review-*
+
+
+login-*
+login-production-*
+login-rc-*
+login-lab-*
+login-dev-*
+
+
+
+node --max_old_space_size=2048 inspectah_deck.js env-local /vol0/papertrail/bucket0/
+node --max_old_space_size=4096 inspectah_deck_large.js env-local /vol0/papertrail/large1/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

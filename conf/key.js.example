@@ -1,0 +1,4 @@
+module.exports = {
+  token: 'papertrail_token',
+  archives: '/path/to/archives/'
+};
